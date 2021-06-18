@@ -25,6 +25,10 @@ model1Q = False; # true: using vo's survivin-protects model and equations; false
 model2Q = False; # true: using vo's survivin-protects-dedifferentiates model and equations; false: not using it
 
 ### VARS RELATED TO EXPERIMENTAL QUESTS ###
+
+probFdbkQ  = False;
+divR1FdbkQ = False;
+divR2FdbkQ = False;
 deathFdbkQ = False; # false: set death feedback gain to 0; true: don't use the false option
 
 
@@ -81,9 +85,27 @@ cell_lines = ["U373MG"];
 d *= 1;
 time_pts1 = 200;
 time_pts2 = 200;
-day_month = "16_June";
-model_suffix = "_positive_death_feedback";
+day_month = "17_June";
+model_suffix = "_positive_death_feedback_expts";
 drty = "C:\\Users\\jhvo9\\Google Drive (vojh1@uci.edu)\\a PhD Projects\\GBM Modeling\\python scripts\\data\\kim_model"+model_suffix+"\\"+day_month; # _div_rate_diff
+
+
+if probFdbkQ:
+    probFdbk_dir = '\\with_prob_fdbk';
+else:
+    probFdbk_dir = '\\without_prob_fdbk';
+
+if divR1FdbkQ:
+    divR1Fdbk_dir = '\\with_divR1_fdbk';
+else:
+    divR1Fdbk_dir = '\\without_divR1_fdbk';
+    
+
+if divR2FdbkQ:
+    divR2Fdbk_dir = '\\with_divR2_fdbk';
+else:
+    divR2Fdbk_dir = '\\without_divR2_fdbk';
+fdbk_dirs = probFdbkQ + divR1FdbkQ + divR2FdbkQ;
 if kimDeathValQ:
     deathVal_dir = '\\death_val_of_kim';
 else:
@@ -92,7 +114,7 @@ if kimReprogQ:
     sub_drty = "\\kim_reprog";
 else:
     sub_drty = "\\corrected_reprog";
-total_drty = drty + deathVal_dir + sub_drty;
+total_drty = drty + deathVal_dir + sub_drty + fdbk_dirs;
 if not exists(total_drty):
     makedirs(total_drty);
 if compDosesQ:
