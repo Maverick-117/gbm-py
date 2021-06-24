@@ -10,10 +10,11 @@ import scipy.integrate as integrate
 def dU_dt(U,t, r1, r2, d, p, h1, h2, hd, z, l, n, sig, mu_bar, chi):
     #function dU = stem_ODE_feedback(t, U, r1, r2, d, p, h, hd, z, l, n, sig, mu_bar, chi)
     return np.array([(2*p/(1+l*U[1]**n)-1)*r1/(1+h1*U[1]**n)*U[0] + mu_bar * (chi * U[2] / ( 1 + chi * U[2] )) * U[1], 
-                     2*(1-p/(1+l*U[1]**n))*r1/(1+h1*U[1]**n)*U[0] + (r2/(1+h2*U[1]**n) - d*hd*U[1]**n/(1+hd*U[1]**n) - mu_bar * chi * U[2] / ( 1 + chi * U[2] )) * U[1],
+                     2*(1-p/(1+l*U[1]**n))*r1/(1+h1*U[1]**n)*U[0] + U[1] * (r2/(1+h2*U[1]**n) - d*hd*U[1]**n/(1+hd*U[1]**n) - mu_bar * chi * U[2] / ( 1 + chi * U[2] )),
                     0
                     ])
-
+    # make simulations, argue from equations
+    
 def radiotherapy_kim(U, LQ_para, surv_vec):
     def fdbk(control, surv):
         val = 1/(1+control*surv);
@@ -94,7 +95,7 @@ def dynamics(para_values, sim_values):
         U = np.hstack((U, U_new))
         T = np.concatenate((T, T_int))
     #print("done")
-    T_none = np.linspace(0, treat_days[-1],len(T))
+    T_none = np.linspace(0, treat_days[-1],time_pts2)
     U_none = integrate.odeint(dU_dt, U0, T_none, args=(r1, r2, d, p, h1, h2, hd, z, l, n, sig, mu_bar, chi)).T
 
     return U, T, U_none, T_none
@@ -102,7 +103,7 @@ def dynamics(para_values, sim_values):
 def parameter_setup(switch_vec, misc_pars):
     #weak_feedbackQ
     subSelectQ, srvQ, compDosesQ, deathFdbkQ, c_dep_sQ, kimReprogQ, kimDeathValQ, kimICQ, model0Q, model1Q, model2Q = switch_vec;
-    DT, post_therapy_end, pwr, h, l_vec, ss = misc_pars;
+    DT, post_therapy_end, pwr, h1, h2, l_vec, ss = misc_pars;
     
     # Initial Condition and rate
     if kimICQ:

@@ -26,10 +26,7 @@ model2Q = False; # true: using vo's survivin-protects-dedifferentiates model and
 
 ### VARS RELATED TO EXPERIMENTAL QUESTS ###
 
-probFdbkQ  = False;
-divR1FdbkQ = False;
-divR2FdbkQ = False;
-deathFdbkQ = False; # false: set death feedback gain to 0; true: don't use the false option
+deathFdbkQ = True; # false: set death feedback gain to 0; true: don't use the false option
 
 
 # Radiotherapy model
@@ -49,21 +46,23 @@ r2 = np.log(2)/DT; # growth rate of DCC
 p = .505; # self renewal probability 
 l_w = 10**(-7); # weak feedback on prob
 l_s = 10**3; # strong feedback on prob
-h = 10**5; # feedback on div
+h1 = 10**5; # feedback on css div 
+h2 = 10**5; # feedback on dcc div
 pwr = 3;#Inf;
 ROI_radius = 1; # Radius of the simulation region of intrest
 rho = 10**9; # density of cells in the region of interest (cells/cm^3)
 total_cell_num = 4/3*np.pi*(ROI_radius ** 3)*rho;
-post_therapy_end = 1000;
+post_therapy_end = 700;
 srv_start = 0;
-ss = 4;
+ss = 9;
 z = 1; n = 1;
-l_vec         = [0  , 0, l_w, l_s, l_w, l_s];
-h_vec         = [0  , h, 0  , 0  , h  , h  ];
+l_vec =  [0,  0, l_w, l_s, l_w , l_s , 0 ,0 ,l_w,l_w,l_s,l_s];
+h1_vec = [0, h1, 0  , 0  , h1  , h1  , h1,0 ,h1 ,0  , h1, 0 ];
+h2_vec = [0, h2, 0  , 0  , h2  , h2  , 0 ,h2,0  ,h2 , 0 , h2];
 
 # man-behind-the-curtain setup.
 switch_vec = [subSelectQ, srvQ, compDosesQ, deathFdbkQ, c_dep_sQ, kimReprogQ, kimDeathValQ, kimICQ, model0Q, model1Q, model2Q];
-misc_pars = [DT, post_therapy_end, pwr, h, l_vec, ss];
+misc_pars = [DT, post_therapy_end, pwr, h1, h2, l_vec, ss];
 par_setup_vec, string_setup_vec = funciones.parameter_setup(switch_vec, misc_pars);
 total_start_frac, d, Doses, Frac, C, cont_p_a, chi, mu_bar, hd, zeta_mult1, zeta_mult2, cont_c, rng = par_setup_vec;
 hd_str_mod, v_suffix, v_suffix_save_A, v_suffix_save, fg_subtitle, reprog_suffix, hd_str, hd_suffix, group_name, c_fdbk_mod = string_setup_vec;
@@ -85,27 +84,10 @@ cell_lines = ["U373MG"];
 d *= 1;
 time_pts1 = 200;
 time_pts2 = 200;
-day_month = "17_June";
-model_suffix = "_positive_death_feedback_expts";
+day_month = "22_June";
+model_suffix = "_odeint_debug_200_700";
 drty = "C:\\Users\\jhvo9\\Google Drive (vojh1@uci.edu)\\a PhD Projects\\GBM Modeling\\python scripts\\data\\kim_model"+model_suffix+"\\"+day_month; # _div_rate_diff
 
-
-if probFdbkQ:
-    probFdbk_dir = '\\with_prob_fdbk';
-else:
-    probFdbk_dir = '\\without_prob_fdbk';
-
-if divR1FdbkQ:
-    divR1Fdbk_dir = '\\with_divR1_fdbk';
-else:
-    divR1Fdbk_dir = '\\without_divR1_fdbk';
-    
-
-if divR2FdbkQ:
-    divR2Fdbk_dir = '\\with_divR2_fdbk';
-else:
-    divR2Fdbk_dir = '\\without_divR2_fdbk';
-fdbk_dirs = probFdbkQ + divR1FdbkQ + divR2FdbkQ;
 if kimDeathValQ:
     deathVal_dir = '\\death_val_of_kim';
 else:
@@ -114,7 +96,7 @@ if kimReprogQ:
     sub_drty = "\\kim_reprog";
 else:
     sub_drty = "\\corrected_reprog";
-total_drty = drty + deathVal_dir + sub_drty + fdbk_dirs;
+total_drty = drty + deathVal_dir + sub_drty;
 if not exists(total_drty):
     makedirs(total_drty);
 if compDosesQ:
@@ -146,7 +128,7 @@ for lll in rng:
     print("index val:", lll,"\n")
     u_sc = [0,1]; u_dc = [0,1]; u_srv = [0,1]; t_vec = [0,1];
     un_sc = [0,1]; un_dc = [0,1]; un_srv = [0,1]; tn_vec = [0,1];
-    l = l_vec[lll]; h = h_vec[lll];
+    l = l_vec[lll]; h1 = h1_vec[lll]; h2 = h2_vec[lll];
     ## Tumor Growth ODE and radiotherapy simulation
     for gg in range(len(cell_lines)):
         a,b =  np.array([0.17, 0.02]); 
@@ -184,7 +166,7 @@ for lll in rng:
                 LQ_param = [a1, b1, a2, b2, c, D];
                 
                 sim_values = [model0Q, model1Q, model2Q, kimReprogQ, total_cell_num, treat_days, srv_start, LQ_param, total_start_frac, sc_start, sim_resume_days, surv_vec, time_pts1, time_pts2];
-                para_values = [r1, r2, d, p, 1e0 * h, 1e0 * h, hd, z, l, n, sig, mu_bar, chi];
+                para_values = [r1, r2, d, p, h1, h2, hd, z, l, n, sig, mu_bar, chi];
                 
                 U, T, U_none, T_none = funciones.dynamics(para_values,sim_values);
                 u_sc[k] = U[0,:];
