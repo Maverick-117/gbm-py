@@ -10,7 +10,7 @@ import scipy.integrate as integrate
 def dU_dt(U,t, r1, r2, d, p, h1, h2, hd, z, l, n, sig, mu_bar, chi):
     #function dU = stem_ODE_feedback(t, U, r1, r2, d, p, h, hd, z, l, n, sig, mu_bar, chi)
     return np.array([(2*p/(1+l*U[1]**n)-1)*r1/(1+h1*U[1]**n)*U[0] + mu_bar * (chi * U[2] / ( 1 + chi * U[2] )) * U[1], 
-                     2*(1-p/(1+l*U[1]**n))*r1/(1+h1*U[1]**n)*U[0] + U[1] * (r2/(1+h2*U[1]**n) - d*hd*U[1]**n/(1+hd*U[1]**n) - mu_bar * chi * U[2] / ( 1 + chi * U[2] )),
+                     2*(1-p/(1+l*U[1]**n))*r1/(1+h1*U[1]**n)*U[0] + U[1] * (r2/(1+h2*U[1]**n) - d-(1.1*r2-d)*hd*U[1]**n/(1+hd*U[1]**n) - mu_bar * chi * U[2] / ( 1 + chi * U[2] )),
                     0
                     ])
     # make simulations, argue from equations
@@ -200,7 +200,10 @@ def parameter_setup(switch_vec, misc_pars):
     if subSelectQ:
         # the point is to force you to pick a value for ss before you can
         # proceed
-        rng = [ss];
+        if type(ss) == int:
+            rng = [ss];
+        elif type(ss) == list or type(ss) == np.ndarray:
+            rng = ss;
     else:
         rng = list(range(len(l_vec)));
     # no feedback, only div feedback, only prob feedback (weak, strong), 

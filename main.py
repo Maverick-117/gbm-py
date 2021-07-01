@@ -18,7 +18,7 @@ compDosesQ = False; #true: yes you're comparing doses; false: no, you're compari
 kimICQ = True; # true: use kim's IC; false: use Yu's IC
 c_dep_sQ = False; # true: make c in radiotherapy dependent on s; false: don't do that
 kimReprogQ = False; 
-kimDeathValQ = False; # true: sets death value to what Kim used; false: sets death value equal to 
+kimDeathValQ = True; # true: sets death value to what Kim used; false: sets death value equal to 
 
 model0Q = True; # true: using vo's no-survivin model and equations; false: not using it 
 model1Q = False; # true: using vo's survivin-protects model and equations; false: not using it
@@ -26,7 +26,7 @@ model2Q = False; # true: using vo's survivin-protects-dedifferentiates model and
 
 ### VARS RELATED TO EXPERIMENTAL QUESTS ###
 
-deathFdbkQ = True; # false: set death feedback gain to 0; true: don't use the false option
+deathFdbkQ = False; # false: set death feedback gain to 0; true: don't use the false option
 
 
 # Radiotherapy model
@@ -45,16 +45,16 @@ r1 = np.log(2)/DT; # growth rate of CSC
 r2 = np.log(2)/DT; # growth rate of DCC
 p = .505; # self renewal probability 
 l_w = 10**(-7); # weak feedback on prob
-l_s = 10**3; # strong feedback on prob
+l_s = 10**0; # strong feedback on prob
 h1 = 10**5; # feedback on css div 
 h2 = 10**5; # feedback on dcc div
 pwr = 3;#Inf;
 ROI_radius = 1; # Radius of the simulation region of intrest
 rho = 10**9; # density of cells in the region of interest (cells/cm^3)
 total_cell_num = 4/3*np.pi*(ROI_radius ** 3)*rho;
-post_therapy_end = 700;
+post_therapy_end = 1100;
 srv_start = 0;
-ss = 9;
+ss = [0,1,3,4,8,9,5,10,11];#[4,8,9,5,10,11];[0,1,2,3,6,7]
 z = 1; n = 1;
 l_vec =  [0,  0, l_w, l_s, l_w , l_s , 0 ,0 ,l_w,l_w,l_s,l_s];
 h1_vec = [0, h1, 0  , 0  , h1  , h1  , h1,0 ,h1 ,0  , h1, 0 ];
@@ -84,8 +84,8 @@ cell_lines = ["U373MG"];
 d *= 1;
 time_pts1 = 200;
 time_pts2 = 200;
-day_month = "22_June";
-model_suffix = "_odeint_debug_200_700";
+day_month = "26_June";
+model_suffix = "_prob_feedback_lowered_0";
 drty = "C:\\Users\\jhvo9\\Google Drive (vojh1@uci.edu)\\a PhD Projects\\GBM Modeling\\python scripts\\data\\kim_model"+model_suffix+"\\"+day_month; # _div_rate_diff
 
 if kimDeathValQ:
